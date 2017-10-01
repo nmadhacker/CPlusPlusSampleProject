@@ -12,9 +12,15 @@ class MyCustomClass
 {
 
 public:
-    static void PrintIntro();
-    static std::string GetValueFromLine();
+	void Reset();
+	int GetMaxTries() const;
+	int GetCurrentTry() const;
+	bool IsGameWon() const;
+	
+	void PrintIntro() const;
+    std::string GetValueFromLine();
+
 private:
-
-
+	int MyCurrentTry = 1;
+	int MyMaxTries = 5;
 };
