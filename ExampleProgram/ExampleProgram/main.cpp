@@ -1,41 +1,51 @@
-//
+/*
 //  main.cpp
 //  ExampleProgram
 //
 //  Created by nMaD on 9/27/17.
 //  Copyright © 2017 nMaD. All rights reserved.
-//
+*/
 
 #include <iostream>
-#include <string>
 #include "main.h"
+
+
+using int32 = int;
+using FText = std::string;
 
 using namespace std;
 
 struct superStruct {
-    int name;
+    int32 name;
 };
 
 MyCustomClass instance;
 
+void PrintIntro();
+void PlayGame();
+FText GetValueFromLine();
+bool AskToPlayAgain();
+
 void PlayGame()
 {
 	superStruct myStruct;
-	superStruct *ptr; ptr = &myStruct;
+	superStruct *ptr;
+    ptr = &myStruct;
 
 	myStruct.name = 5;
 	ptr->name = 10;
-
-	int maxTries = instance.GetMaxTries();
+    
+    instance.Reset();
+	int32 maxTries = instance.GetMaxTries();
 
 	cout << myStruct.name << "\n\n";
 
 	string MyString = "";
-	int index = 0;
+	int32 index = 0;
 	while (index < maxTries)
 	{
 		cout << "Try" << instance.GetCurrentTry() << ", Two and two are? ";
-		MyString = instance.GetValueFromLine();
+		MyString = GetValueFromLine();
 		cout << "You entered: " << MyString << endl;
 		index++;
 	}
@@ -52,7 +62,7 @@ int main()
 	bool playAgain = false;
 	do
 	{
-		instance.PrintIntro();
+		PrintIntro();
 		PlayGame();
 		playAgain = AskToPlayAgain();
 	} while (playAgain);
@@ -60,29 +70,64 @@ int main()
 	return 0;
 }
 
-// ==============================================================
-
-int MyCustomClass::GetCurrentTry() const { return MyCurrentTry; }
-bool MyCustomClass::IsGameWon() const
+void PrintIntro()
 {
-	return false;
-}
-void MyCustomClass::Reset()
-{
-}
-
-int MyCustomClass::GetMaxTries() const { return MyMaxTries; }
-
-void MyCustomClass::PrintIntro() const
-{
-    constexpr int MY_CONSTANT = 10;
     cout << "Welcome to my app" << endl;
-    cout << "Today's value is: " << MY_CONSTANT << "\n";
+    cout << "Today's value is: " << instance.GetHiddenWordLength() << "\n";
 }
 
-string MyCustomClass::GetValueFromLine()
+FText GetValueFromLine()
 {
     string ToReturn;
     getline(cin,ToReturn);
     return  ToReturn;
+}
+
+// ==============================================================
+
+MyCustomClass::MyCustomClass()
+{
+    Reset();
+}
+
+int32 MyCustomClass::GetCurrentTry() const { return MyCurrentTry; }
+int32 MyCustomClass::GetMaxTries() const { return MyMaxTries; }
+int32 MyCustomClass::GetHiddenWordLength() const { return MyHiddenWord.length(); }
+bool MyCustomClass::IsGameWon() const { return false; }
+void MyCustomClass::Reset()
+{
+    constexpr int32 MAX_TRIES = 8;
+    MyMaxTries = MAX_TRIES;
+    
+    constexpr int32 INIT_TRY = 1;
+    MyCurrentTry = INIT_TRY;
+    
+    const FString HIDDEN_WORD = "planet";
+    MyHiddenWord = HIDDEN_WORD;
+}
+
+FBullCowCount MyCustomClass::CheckAnswer(FString Guess)
+{
+    FBullCowCount toReturn;
+    
+    int32 HiddenWordLength = MyHiddenWord.length();
+    for(int32 i = 0; i < HiddenWordLength; ++i)
+    {
+        for(int32 j = 0; j < Guess.length(); ++j)
+        {
+            if (Guess[j] == MyHiddenWord[i])
+            {
+                if (i == j)
+                {
+                    toReturn.Bulls++;
+                }
+                else
+                {
+                    toReturn.Cows++;
+                }
+            }
+        }
+    }
+    
+    return toReturn;
 }
