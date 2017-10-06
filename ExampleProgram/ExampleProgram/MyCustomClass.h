@@ -1,5 +1,5 @@
 //
-//  main.h
+//  MyCustomClass.h
 //  ExampleProgram
 //
 //  Created by nMaD on 9/27/17.
@@ -18,6 +18,20 @@ struct FBullCowCount
     int32 Cows = 0;
 };
 
+enum class EWordStatus
+{
+    OK,
+    Not_Isogram,
+    Wrong_Length,
+    Not_Lowercase
+};
+
+enum class EResetStatus
+{
+    No_Hidden_Word,
+    OK
+};
+
 class MyCustomClass
 {
 
@@ -31,10 +45,15 @@ public:
 	bool IsGameWon() const;
 	
     void Reset();
-    FBullCowCount CheckAnswer(FString Guess);
+    EWordStatus CheckGuessValidity(FString Guess) const;
+    FBullCowCount SubmitValidGuess(FString Guess);
     
 private:
 	int32 MyCurrentTry;
 	int32 MyMaxTries;
     FString MyHiddenWord;
+    bool bIsGameWon;
+    
+    bool IsIsogram(FString Guess) const;
+    bool IsLowerCase(FString Guess) const;
 };

@@ -7,8 +7,7 @@
 */
 
 #include <iostream>
-#include "main.h"
-
+#include "MyCustomClass.h"
 
 using int32 = int;
 using FText = std::string;
@@ -23,8 +22,9 @@ MyCustomClass instance;
 
 void PrintIntro();
 void PlayGame();
-FText GetValueFromLine();
+FText GuetValidGuess();
 bool AskToPlayAgain();
+void PrintGameSummary();
 
 void PlayGame()
 {
@@ -40,26 +40,37 @@ void PlayGame()
 
 	cout << myStruct.name << "\n\n";
 
-	string MyString = "";
-	int32 index = 0;
-	while (index < maxTries)
+	string Guess = "";
+    
+	while (!instance.IsGameWon() && instance.GetCurrentTry() <= instance.GetMaxTries())
 	{
-		cout << "Try" << instance.GetCurrentTry() << ", Two and two are? ";
-		MyString = GetValueFromLine();
-		cout << "You entered: " << MyString << endl;
-		index++;
+		Guess = GuetValidGuess();                
+        
+        FBullCowCount BullCowCount = instance.SubmitValidGuess(Guess);
+        
+        cout << "Bulls = " << BullCowCount.Bulls;
+        cout << ". Cows = "<< BullCowCount.Cows << endl;
 	}
+    
+    PrintGameSummary();
+}
+
+void PrintGameSummary()
+{
+    cout << "You " << (instance.IsGameWon() ? "Won" : "Lost") << "!!\n";
 }
 
 bool AskToPlayAgain()
 {
-	return false;
+	cout<<"Do you want to play again? (y/n): ";
+    int32 answer = std::getchar();
+    return answer == 'y';
 }
 
 // entry point of this app
 int main()
 {
-	bool playAgain = false;
+	bool playAgain = true;
 	do
 	{
 		PrintIntro();
@@ -76,58 +87,35 @@ void PrintIntro()
     cout << "Today's value is: " << instance.GetHiddenWordLength() << "\n";
 }
 
-FText GetValueFromLine()
+// loop until get a valid guess
+FText GuetValidGuess()
 {
+    EWordStatus Status = EWordStatus::Not_Isogram;
     string ToReturn;
-    getline(cin,ToReturn);
-    return  ToReturn;
-}
-
-// ==============================================================
-
-MyCustomClass::MyCustomClass()
-{
-    Reset();
-}
-
-int32 MyCustomClass::GetCurrentTry() const { return MyCurrentTry; }
-int32 MyCustomClass::GetMaxTries() const { return MyMaxTries; }
-int32 MyCustomClass::GetHiddenWordLength() const { return MyHiddenWord.length(); }
-bool MyCustomClass::IsGameWon() const { return false; }
-void MyCustomClass::Reset()
-{
-    constexpr int32 MAX_TRIES = 8;
-    MyMaxTries = MAX_TRIES;
     
-    constexpr int32 INIT_TRY = 1;
-    MyCurrentTry = INIT_TRY;
-    
-    const FString HIDDEN_WORD = "planet";
-    MyHiddenWord = HIDDEN_WORD;
-}
-
-FBullCowCount MyCustomClass::CheckAnswer(FString Guess)
-{
-    FBullCowCount toReturn;
-    
-    int32 HiddenWordLength = MyHiddenWord.length();
-    for(int32 i = 0; i < HiddenWordLength; ++i)
+    do
     {
-        for(int32 j = 0; j < Guess.length(); ++j)
-        {
-            if (Guess[j] == MyHiddenWord[i])
-            {
-                if (i == j)
-                {
-                    toReturn.Bulls++;
-                }
-                else
-                {
-                    toReturn.Cows++;
-                }
-            }
+        cout << "Try" << instance.GetCurrentTry() << ", Two and two are? ";
+        
+        getline(cin,ToReturn);
+        
+        Status = instance.CheckGuessValidity(ToReturn);
+        
+        switch (Status) {
+            case EWordStatus::Wrong_Length:
+                cout << "Please enter a " << instance.GetHiddenWordLength() << " letter word";
+                break;
+            case EWordStatus::Not_Isogram:
+                cout << "Please enter a word without repeating letters";
+                break;
+            case EWordStatus::Not_Lowercase:
+                cout << "Please enter all lowercase letters";
+                break;
+            default:
+                break;
         }
-    }
+        cout << endl;
+    } while(Status != EWordStatus::OK); // keep looping until we get a valid value
     
-    return toReturn;
+    return ToReturn;
 }
