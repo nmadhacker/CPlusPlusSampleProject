@@ -8,6 +8,8 @@
 
 #pragma once
 #include <string>
+#include <map>
+#define TMap std::map
 
 using int32 = int;
 using FString = std::string;
@@ -41,17 +43,19 @@ public:
     
 	int32 GetMaxTries() const;
 	int32 GetCurrentTry() const;
+    FString GetHiddenWord() const;
     int32 GetHiddenWordLength() const;
 	bool IsGameWon() const;
 	
-    void Reset();
+    void Reset(int32 difficulty);
     EWordStatus CheckGuessValidity(FString Guess) const;
     FBullCowCount SubmitValidGuess(FString Guess);
     
 private:
 	int32 MyCurrentTry;
-	int32 MyMaxTries;
-    FString MyHiddenWord;
+    int32 MyCurrentDifficulty;
+    TMap<int32,FString> HiddenWords;
+    int32 MinWordLength, MaxWordLength;
     bool bIsGameWon;
     
     bool IsIsogram(FString Guess) const;

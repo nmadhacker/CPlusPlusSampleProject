@@ -35,10 +35,14 @@ void PlayGame()
 	myStruct.name = 5;
 	ptr->name = 10;
     
-    instance.Reset();
-	int32 maxTries = instance.GetMaxTries();
-
-	cout << myStruct.name << "\n\n";
+    cout << myStruct.name << "\n\n";
+    
+    cout << "Select Difficulty from 3 to 7: ";
+    int32 answer = std::getchar();
+    int32 difficulty = answer - '0';
+    cin.ignore();
+    
+    instance.Reset(difficulty);
 
 	string Guess = "";
     

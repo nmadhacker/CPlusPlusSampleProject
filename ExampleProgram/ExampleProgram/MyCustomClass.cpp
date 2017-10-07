@@ -12,23 +12,36 @@
 
 MyCustomClass::MyCustomClass()
 {
-    Reset();
+    Reset(3);
 }
 
 int32 MyCustomClass::GetCurrentTry() const { return MyCurrentTry; }
-int32 MyCustomClass::GetMaxTries() const { return MyMaxTries; }
-int32 MyCustomClass::GetHiddenWordLength() const { return MyHiddenWord.length(); }
+FString MyCustomClass::GetHiddenWord() const { return HiddenWords.find(MyCurrentDifficulty)->second; }
+int32 MyCustomClass::GetHiddenWordLength() const { return GetHiddenWord().length(); }
 bool MyCustomClass::IsGameWon() const { return bIsGameWon; }
-void MyCustomClass::Reset()
+
+int32 MyCustomClass::GetMaxTries() const
 {
-    constexpr int32 MAX_TRIES = 8;
-    MyMaxTries = MAX_TRIES;
-    
+    TMap<int32,int32> WordLengthToMaxTries { {3,5},{4,6},{5,7},{6,10},{7,12} };
+    return WordLengthToMaxTries[GetHiddenWordLength()];
+}
+
+void MyCustomClass::Reset(int32 difficulty)
+{
     constexpr int32 INIT_TRY = 1;
-    MyCurrentTry = INIT_TRY;
+    constexpr int32 MIN_WORD_LENGTH = 3;
+    constexpr int32 MAX_WORD_LENGTH = 7;
     
-    const FString HIDDEN_WORD = "planet";
-    MyHiddenWord = HIDDEN_WORD;
+    MyCurrentTry = INIT_TRY;
+    MinWordLength = MIN_WORD_LENGTH;
+    MaxWordLength = MAX_WORD_LENGTH;        
+    
+    HiddenWords = { {3,"alt"}, {4,"plan"}, {5,"plane"}, {6,"planet"}, {7,"planets"} };
+    
+    FString tree = HiddenWords[3];
+    
+    
+    MyCurrentDifficulty = difficulty < MinWordLength ? MinWordLength : difficulty > MaxWordLength ? MaxWordLength : difficulty;
     
     bIsGameWon = false;
 }
@@ -63,7 +76,7 @@ FBullCowCount MyCustomClass::SubmitValidGuess(FString Guess)
     {
         for(int32 j = 0; j < Guess.length(); ++j)
         {
-            if (Guess[j] == MyHiddenWord[i])
+            if (Guess[j] == GetHiddenWord()[i])
             {
                 if (i == j)
                 {
